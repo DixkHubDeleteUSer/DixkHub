@@ -1,0 +1,238 @@
+local TableForFunction = {}
+function TableForFunction:FpsBoost()
+        _G.Settings = {
+            Players = {
+                ["Ignore Me"] = true, -- Ignore your Character
+                ["Ignore Others"] = true -- Ignore other Characters
+            },
+            Meshes = {
+                Destroy = false, -- Destroy Meshes
+                LowDetail = true -- Low detail meshes (NOT SURE IT DOES ANYTHING)
+            },
+            Images = {
+                Invisible = true, -- Invisible Images
+                LowDetail = false, -- Low detail images (NOT SURE IT DOES ANYTHING)
+                Destroy = false, -- Destroy Images
+            },
+            Other = {
+                ["No Particles"] = true, -- Disables all ParticleEmitter, Trail, Smoke, Fire and Sparkles
+                ["No Camera Effects"] = true, -- Disables all PostEffect's (Camera/Lighting Effects)
+                ["No Explosions"] = true, -- Makes Explosion's invisible
+                ["No Clothes"] = true, -- Removes Clothing from the game
+                ["Low Water Graphics"] = true, -- Removes Water Quality
+                ["No Shadows"] = true, -- Remove Shadows
+                ["Low Rendering"] = true, -- Lower Rendering
+                ["Low Quality Parts"] = true -- Lower quality parts
+            }
+        }
+        local Players = game:GetService("Players")
+        local BadInstances = {"DataModelMesh", "FaceInstance", "ParticleEmitter", "Trail", "Smoke", "Fire", "Sparkles", "PostEffect", "Explosion", "Clothing", "BasePart"}
+        local CanBeEnabled = {"ParticleEmitter", "Trail", "Smoke", "Fire", "Sparkles", "PostEffect"}
+        local function PartOfCharacter(Instance)
+            for i, v in pairs(Players:GetPlayers()) do
+                if v.Character and Instance:IsDescendantOf(v.Character) then
+                    return true
+                end
+            end
+            return false
+        end
+        local function ReturnDescendants()
+            local Descendants = {}
+            WaitNumber = 5000
+            if _G.Settings.Players["Ignore Others"] then
+                for i, v in pairs(game:GetDescendants()) do
+                    if not v:IsDescendantOf(Players) and not PartOfCharacter(v) then
+                        for i2, v2 in pairs(BadInstances) do
+                            if v:IsA(v2) then
+                                table.insert(Descendants, v)
+                            end
+                        end
+                    end
+                    if i == WaitNumber then
+                        task.wait()
+                        WaitNumber = WaitNumber + 5000
+                    end
+                end
+            elseif _G.Settings.Players["Ignore Me"] then
+                for i, v in pairs(game:GetDescendants()) do
+                    if not v:IsDescendantOf(Players) and not v:IsDescendantOf(ME.Character) then
+                        for i2, v2 in pairs(BadInstances) do
+                            if v:IsA(v2) then
+                                table.insert(Descendants, v)
+                            end
+                        end
+                    end
+                    if i == WaitNumber then
+                        task.wait()
+                        WaitNumber = WaitNumber + 5000
+                    end
+                end
+            end
+            return Descendants
+        end
+        local function CheckIfBad(Instance)
+            if not Instance:IsDescendantOf(Players) and not PartOfCharacter(Instance) then
+                if Instance:IsA("DataModelMesh") then
+                    if _G.Settings.Meshes.LowDetail then
+                        sethiddenproperty(Instance, "LODX", Enum.LevelOfDetailSetting.Low)
+                        sethiddenproperty(Instance, "LODY", Enum.LevelOfDetailSetting.Low)
+                    elseif _G.Settings.Meshes.Destroy then
+                        Instance:Destroy()
+                    end
+                elseif Instance:IsA("FaceInstance") then
+                    if _G.Settings.Images.Invisible then
+                        Instance.Transparency = 1
+                    elseif _G.Settings.Images.LowDetail then
+                        Instance.Shiny = 1
+                    elseif _G.Settings.Images.Destroy then
+                        Instance:Destroy()
+                    end
+                elseif table.find(CanBeEnabled, Instance.ClassName) then
+                    if _G.Settings["No Particles"] or (_G.Settings.Other and _G.Settings.Other["No Particles"]) then
+                        Instance.Enabled = false
+                    end
+                elseif Instance:IsA("Explosion") then
+                    if _G.Settings["No Explosions"] or (_G.Settings.Other and _G.Settings.Other["No Explosions"]) then
+                        Instance.Visible = false
+                    end
+                elseif Instance:IsA("Clothing") then
+                    if _G.Settings["No Clothes"] or (_G.Settings.Other and _G.Settings.Other["No Clothes"]) then
+                        Instance:Destroy()
+                    end
+                elseif Instance:IsA("BasePart") then
+                    if _G.Settings["Low Quality Parts"] or (_G.Settings.Other and _G.Settings.Other["Low Quality Parts"]) then
+                        Instance.Material = Enum.Material.Plastic
+                        Instance.Reflectance = 0
+                    end
+                end
+            end
+        end
+        if _G.Settings["Low Water Graphics"] or (_G.Settings.Other and _G.Settings.Other["Low Water Graphics"]) then
+            workspace:FindFirstChildOfClass("Terrain").WaterWaveSize = 0
+            workspace:FindFirstChildOfClass("Terrain").WaterWaveSpeed = 0
+            workspace:FindFirstChildOfClass("Terrain").WaterReflectance = 0
+            workspace:FindFirstChildOfClass("Terrain").WaterTransparency = 0
+        end
+        if _G.Settings["No Shadows"] or (_G.Settings.Other and _G.Settings.Other["No Shadows"]) then
+            game:GetService("Lighting").GlobalShadows = false
+            game:GetService("Lighting").FogEnd = 9e9
+        end
+        if _G.Settings["Low Rendering"] or (_G.Settings.Other and _G.Settings.Other["Low Rendering"]) then
+            settings().Rendering.QualityLevel = 1
+        end
+
+        local Descendants = ReturnDescendants()
+        local WaitNumber = 500
+        for i, v in pairs(Descendants) do
+            CheckIfBad(v)
+            if i == WaitNumber then
+                task.wait()
+                WaitNumber = WaitNumber + 500
+            end
+        end
+        local function Check(v)
+            if v:IsA'Part' then
+                v.Material = Enum.Material.Plastic;
+            elseif v.ClassName:match'Light' then
+                v:Destroy'';
+            elseif v.ClassName:match'Effect' then
+                pcall(function()
+                    v.Enabled = false;
+                end);
+            end;
+        end;
+
+        local Lighting = game:GetService'Lighting';
+        for i, v in next, Lighting:GetChildren'' do
+            Check(v);
+        end;
+
+        Lighting.DescendantAdded:Connect(Check);
+
+        for i, v in next, workspace:GetDescendants() do
+            Check(v);
+        end;
+        for _,v in pairs(workspace:GetDescendants()) do
+            if v.ClassName == "Part"
+            or v.ClassName == "SpawnLocation"
+            or v.ClassName == "WedgePart"
+            or v.ClassName == "Terrain"
+            or v.ClassName == "MeshPart" then
+            v.BrickColor = BrickColor.new(0,0,0)
+            v.Material = "Plastic"
+            end
+            end
+            
+            for _,v in pairs(workspace:GetDescendants()) do
+            if v.ClassName == "Decal"
+            or v.ClassName == "Texture" then
+            v:Destroy()
+            end
+            end
+        workspace.DescendantAdded:Connect(Check);
+        game.DescendantAdded:Connect(CheckIfBad)
+        _G.XX = true
+    end
+
+local PlaceID = game.PlaceId
+    local AllIDs = {}
+    local foundAnything = ""
+    local actualHour = os.date("!*t").hour
+    local Deleted = false
+    function TPReturner()
+        local Site;
+        if foundAnything == "" then
+            Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
+        else
+            Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
+        end
+        local ID = ""
+        if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+            foundAnything = Site.nextPageCursor
+        end
+        local num = 0;
+        for i,v in pairs(Site.data) do
+            local Possible = true
+            ID = tostring(v.id)
+            if tonumber(v.maxPlayers) > tonumber(v.playing) then
+                for _,Existing in pairs(AllIDs) do
+                    if num ~= 0 then
+                        if ID == tostring(Existing) then
+                            Possible = false
+                        end
+                    else
+                        if tonumber(actualHour) ~= tonumber(Existing) then
+                            local delFile = pcall(function()
+                                delfile("NotSameServers.json")
+                                AllIDs = {}
+                                table.insert(AllIDs, actualHour)
+                            end)
+                        end
+                    end
+                    num = num + 1
+                end
+                if Possible == true then
+                    table.insert(AllIDs, ID)
+                    wait()
+                    pcall(function()
+                        writefile("NotSameServers.json", game:GetService('HttpService'):JSONEncode(AllIDs))
+                        wait()
+                        game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+                    end)
+                    wait(4)
+                end
+            end
+        end
+    end
+    
+    function TableForFunction:Teleport()
+        while wait() do
+            pcall(function()
+                TPReturner()
+                if foundAnything ~= "" then
+                    TPReturner()
+                end
+            end)
+        end
+    end
+return TableForFunction
