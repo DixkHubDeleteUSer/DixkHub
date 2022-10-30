@@ -1,0 +1,37 @@
+if _G.Screen == nil then
+	_G.Screen = true
+end
+if _G.FpsBoost == nil then
+	_G.FpsBoost = true
+end
+if _G.Fps == nil then
+	_G.Fps = 60
+end
+if _G.FastAttacSpeed == nil then
+	_G.FastAttacSpeed = {6,7}
+end
+if _G.IgnorerFruit == nil then
+	_G.IgnorerFruit = {"Leopard-Leopard"}
+end
+if _G.AfterMasteryFull == nil then
+	_G.AfterMasteryFull = 'Sword'
+end 
+if _G.HopServerDelay == nil then
+	_G.HopServerDelay = 240
+end 
+if _G.Configs == nil then
+	_G.Configs = {
+        ["Kaiton"] = {
+            ["Devil Fruit Snipe"] = {'Flame-Flame','Ice-Ice','Dough-Dough','Sand-Sand','Dark-Dark','Light-Light','Magma-Magma','Bird-Bird: Phoenix','String-String','Human-Human: Buddha'}
+        }
+    }
+end
+repeat wait() until game:IsLoaded()
+pcall(setfpscap,_G.Fps)
+pcall(set_fps_cap,_G.Fps)
+game:GetService("RunService"):Set3dRenderingEnabled(_G.Screen)
+if _G.Normal == true then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/DixkHubDeleteUSer/DixkHub/main/fanoCracked_by%E0%B9%80%E0%B8%84%E0%B8%A2%E0%B8%AD%E0%B8%A1"))();
+else
+loadstring(game:HttpGet("https://raw.githubusercontent.com/DixkHubDeleteUSer/DixkHub/main/fanoCracked_by%E0%B9%80%E0%B8%84%E0%B8%A2%E0%B8%AD%E0%B8%A1v2"))();
+end
